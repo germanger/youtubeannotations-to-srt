@@ -15,19 +15,19 @@ Source code: `C#`
 
  2.2. Using `cmd`, run the `.exe` passing the XML file path as an argument (just type the path after the `.exe`, separated by one or more spaces).
  
- If you want to check the output in console, type:
+ If you want to see the output in the console, just type:
  
        ConvertYoutubeAnnotationsToSRT.exe C:\annotations.xml
        
- If you want the output to a file, type:
+ If you want the output written to a file, type:
  
        ConvertYoutubeAnnotationsToSRT.exe C:\annotations.xml >> C:\output.srt
  
- **Argument alternative:** you may omit the XML argument, but then the file needs to be in `C:\annotations.xml` (with that exact name and location)
+ **Argument alternative:** you can omit the XML argument, but then the file needs to be in `C:\annotations.xml` (with that exact name and location)
  
 
 ## TO-DOs:
 
 1. Accept an argument that enables writing to a file instead of writing to `Console`'s output.
-2. Maybe create a GUI
+2. Maybe create a GUI, or a web application
 3. Do more tests and check exceptions
