@@ -18,9 +18,23 @@ namespace ConvertYoutubeAnnotationsToSRT
             // Open document
             XDocument doc = null;
 
-            using (StreamReader oReader = new StreamReader("C:\\annotations.xml", Encoding.GetEncoding("ISO-8859-1")))
+            try
             {
-                doc = XDocument.Load(oReader);
+                using (StreamReader oReader = new StreamReader(args.Length == 0 ? "C:\\annotations.xml" : args[0], Encoding.GetEncoding("ISO-8859-1")))
+                {
+                    doc = XDocument.Load(oReader);
+                }
+            }
+            catch (System.IO.FileNotFoundException e)
+            {
+                Console.WriteLine("Couldn't find the file.");
+                return;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error reading the file. Full exception:");
+                Console.WriteLine(e);
+                return;
             }
 
             // Fetch all <annotation>'s
@@ -52,9 +66,6 @@ namespace ConvertYoutubeAnnotationsToSRT
 
             // Show output
             Console.WriteLine(output);
-
-            // Lets dont end the program yet
-            Console.ReadLine();
         }
 
         private static string FormatTime(string timecode)
