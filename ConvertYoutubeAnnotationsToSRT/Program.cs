@@ -20,7 +20,7 @@ namespace ConvertYoutubeAnnotationsToSRT
 
             try
             {
-                using (StreamReader oReader = new StreamReader(args.Length == 0 ? "C:\\annotations.xml" : args[0], Encoding.GetEncoding("ISO-8859-1")))
+                using (StreamReader oReader = new StreamReader(args.Length == 0 ? "C:\\annotations.xml" : args[0], Encoding.UTF8))
                 {
                     doc = XDocument.Load(oReader);
                 }
@@ -28,6 +28,7 @@ namespace ConvertYoutubeAnnotationsToSRT
             catch (System.IO.FileNotFoundException e)
             {
                 Console.WriteLine("Couldn't find the file.");
+				Console.WriteLine (e);
                 return;
             }
             catch (Exception e)
@@ -38,16 +39,19 @@ namespace ConvertYoutubeAnnotationsToSRT
             }
 
             // Fetch all <annotation>'s
-            var annotations = doc.Descendants("annotation");
+	    var annotations = from anns in doc.Descendants("annotation") select anns;
 
             // Iterate over them, parsing them
             foreach (var annotation in annotations)
             {
+		if (annotation.Element ("TEXT") == null)
+                  continue;
+
                 SubtitleLine subtitleLine = new SubtitleLine();
 
-                subtitleLine.Text = annotation.Element("TEXT").Value.Replace("\n", "");
-                subtitleLine.StartTime = FormatTime(annotation.Descendants("rectRegion").ToList()[0].Attribute("t").Value);
-                subtitleLine.EndTime = FormatTime(annotation.Descendants("rectRegion").ToList()[1].Attribute("t").Value);
+                subtitleLine.Text = annotation.Element ("TEXT").Value.Replace ("\n", "");
+                subtitleLine.StartTime = FormatTime (annotation.Element ("segment").Element ("movingRegion").Descendants ("rectRegion").ToList () [0].Attribute ("t").Value);
+                subtitleLine.EndTime = FormatTime (annotation.Element ("segment").Element ("movingRegion").Descendants ("rectRegion").ToList () [1].Attribute ("t").Value);
 
                 subtitles.Add(subtitleLine);
             }
