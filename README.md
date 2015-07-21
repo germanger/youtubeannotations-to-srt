@@ -3,6 +3,12 @@
 This small tool (C# console application) lets to convert youtube annotations (XML) to SRT file.<br/>
 Source code: `C#`
 
+## Update! (2015-07-20)
+
+I've written the same thing with JavaScript.<br/>
+Much easier to use, visit here: [germanger/youtubeannotations-to-srt-js](https://github.com/germanger/youtubeannotations-to-srt-js)<br/>
+Or just [use it here](https://rawgit.com/germanger/youtubeannotations-to-srt-js/master/index.html).
+
 ## Usage
 
 1. Download youtube annotations as XML with this opensource tool: [youtube-copy-annotations](https://stefansundin.github.io/youtube-copy-annotations/) (you only need to use `Step 1: Get annotation data`)
