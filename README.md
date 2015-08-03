@@ -23,9 +23,6 @@ Source code: `C#`
  
        ConvertYoutubeAnnotationsToSRT.exe C:\annotations.xml >> C:\output.srt
  
- **Argument alternative:** you can omit the XML argument, but then the file needs to be in `C:\annotations.xml` (with that exact name and location)
- 
-
 ## TO-DOs:
 
 1. Accept an argument that enables writing to a file instead of writing to `Console`'s output.
