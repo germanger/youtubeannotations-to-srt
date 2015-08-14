@@ -8,87 +8,92 @@ using System.Xml.Linq;
 
 namespace ConvertYoutubeAnnotationsToSRT
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            // The parsed subtitles
-            List<SubtitleLine> subtitles = new List<SubtitleLine>();
+	class Program
+	{
+		static void Main (string[] args)
+		{
+			if (args.Length == 0) {
+				Console.WriteLine ("usage: ann2srt input.xml > output.srt");
+				Console.WriteLine ("Converts YouTube's XML annotations to SRT files VLC (and others) will accept as subtitles");
+				return;
+			}
 
-            // Open document
-            XDocument doc = null;
+			// The parsed subtitles
+			List<SubtitleLine> subtitles = new List<SubtitleLine> ();
 
-            try
-            {
-                using (StreamReader oReader = new StreamReader(args.Length == 0 ? "C:\\annotations.xml" : args[0], Encoding.GetEncoding("ISO-8859-1")))
-                {
-                    doc = XDocument.Load(oReader);
-                }
-            }
-            catch (System.IO.FileNotFoundException e)
-            {
-                Console.WriteLine("Couldn't find the file.");
-                return;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error reading the file. Full exception:");
-                Console.WriteLine(e);
-                return;
-            }
+			// Open document
+			XDocument doc = null;
 
-            // Fetch all <annotation>'s
-            var annotations = doc.Descendants("annotation");
+			try {
+				using (StreamReader oReader = new StreamReader (args [0], Encoding.UTF8)) {
+					doc = XDocument.Load (oReader);
+				}
+			} catch (System.IO.FileNotFoundException e) {
+				Console.WriteLine ("Couldn't find the file.");
+				Console.WriteLine (e);
+				return;
+			} catch (Exception e) {
+				Console.WriteLine ("Error reading the file. Full exception:");
+				Console.WriteLine (e);
+				return;
+			}
 
-            // Iterate over them, parsing them
-            foreach (var annotation in annotations)
-            {
-                SubtitleLine subtitleLine = new SubtitleLine();
+			// Fetch all <annotation>'s
+			var annotations = from anns in doc.Descendants ("annotation")
+			                    select anns;
 
-                subtitleLine.Text = annotation.Element("TEXT").Value.Replace("\n", "");
-                subtitleLine.StartTime = FormatTime(annotation.Descendants("rectRegion").ToList()[0].Attribute("t").Value);
-                subtitleLine.EndTime = FormatTime(annotation.Descendants("rectRegion").ToList()[1].Attribute("t").Value);
+			// Iterate over them, parsing them
+			foreach (var annotation in annotations) {
+				if (annotation.Element ("TEXT") == null)
+					continue;
 
-                subtitles.Add(subtitleLine);
-            }
+				SubtitleLine subtitleLine = new SubtitleLine ();
 
-            // Output SRT file
-            string output = "";
-            int subtitleNumber = 1;
+				subtitleLine.Text = annotation.Element ("TEXT").Value.Replace ("\n", "");
+				subtitleLine.StartTime = FormatTime (annotation.Element ("segment").Element ("movingRegion").Descendants ("rectRegion").ToList () [0].Attribute ("t").Value);
+				subtitleLine.EndTime = FormatTime (annotation.Element ("segment").Element ("movingRegion").Descendants ("rectRegion").ToList () [1].Attribute ("t").Value);
 
-            foreach (SubtitleLine subtitleLine in subtitles.OrderBy(s => s.StartTime))
-            {
-                output = output + subtitleNumber++;
-                output = output + "\n" + subtitleLine.StartTime + " --> " + subtitleLine.EndTime;
-                output = output + "\n" + subtitleLine.Text;
-                output = output + "\n\n";
-            }
+				subtitles.Add (subtitleLine);
+			}
 
-            // Show output
-            Console.WriteLine(output);
-        }
+			// Output SRT file
+			string output = "";
+			int subtitleNumber = 1;
 
-        private static string FormatTime(string timecode)
-        {
-            timecode = timecode.Replace(".", ",");
+			foreach (SubtitleLine subtitleLine in subtitles.OrderBy(s => s.StartTime)) {
+				output = output + subtitleNumber++;
+				output = output + "\n" + subtitleLine.StartTime + " --> " + subtitleLine.EndTime;
+				output = output + "\n" + subtitleLine.Text;
+				output = output + "\n\n";
+			}
 
-            if (timecode.Length == 9)
-                return "00:" + timecode;
+			// Show output
+			Console.WriteLine (output);
+		}
 
-            if (timecode.Length == 8)
-                return "00:0" + timecode;
+		private static string FormatTime (string timecode)
+		{
+			timecode = timecode.Replace (".", ",");
 
-            if (timecode.Length == 6)
-                return "00:00:" + timecode;
+			if (timecode.Length == 9)
+				return "00:" + timecode;
 
-            return timecode;
-        }
-    }
+			if (timecode.Length == 8)
+				return "00:0" + timecode;
 
-    class SubtitleLine
-    {
-        public string Text { get; set; }
-        public string StartTime { get; set; }
-        public string EndTime { get; set; }
-    }
+			if (timecode.Length == 6)
+				return "00:00:" + timecode;
+
+			return timecode;
+		}
+	}
+
+	class SubtitleLine
+	{
+		public string Text { get; set; }
+
+		public string StartTime { get; set; }
+
+		public string EndTime { get; set; }
+	}
 }
